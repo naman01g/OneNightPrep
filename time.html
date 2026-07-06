@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Choose how much study time you have left with OneNight.Prep.">
+  <title>Choose Your Timeline — OneNight.Prep</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/app.js" defer></script>
+  <script src="js/cursor-light.js" defer></script>
+</head>
+<body>
+  <div class="site-shell">
+    <aside id="ad-banner" aria-label="Advertisement">
+      <span>Advertisement</span>
+      <p>Your study break could be here</p>
+    </aside>
+
+    <header class="topbar">
+      <a class="back-link" id="subject-back-link" href="index.html">
+        <span aria-hidden="true">←</span> Back to subjects
+      </a>
+      <a class="mini-logo" href="index.html">OneNight<span>.Prep</span></a>
+    </header>
+
+    <main class="time-main">
+      <section class="page-heading time-heading">
+        <p class="eyebrow">Step 02 · Set your pace</p>
+        <h1>How much time<br>do you have?</h1>
+        <p><span id="selected-year">Your year</span> · <span id="selected-subject">Your subject</span></p>
+      </section>
+
+      <section class="time-grid" aria-label="Choose time remaining">
+        <button class="time-card" type="button" data-time="2+ Days Left">
+          <span class="time-icon" aria-hidden="true">◫</span>
+          <span class="time-label">Room to breathe</span>
+          <strong>2+ Days Left</strong>
+          <small>Build a complete, steady revision plan.</small>
+          <i aria-hidden="true">→</i>
+        </button>
+        <button class="time-card featured" type="button" data-time="1 Day Left">
+          <span class="time-icon" aria-hidden="true">◷</span>
+          <span class="time-label">Time to focus</span>
+          <strong>1 Day Left</strong>
+          <small>Prioritize the concepts that matter most.</small>
+          <i aria-hidden="true">→</i>
+        </button>
+        <button class="time-card urgent" type="button" data-time="Just Tonight">
+          <span class="popular-tag">Most picked</span>
+          <span class="time-icon" aria-hidden="true">⌁</span>
+          <span class="time-label">All hands on deck</span>
+          <strong>Just Tonight</strong>
+          <small>The sharpest possible last-night sprint.</small>
+          <i aria-hidden="true">→</i>
+        </button>
+      </section>
+
+      <p class="selection-message" id="selection-message" aria-live="polite"></p>
+    </main>
+  </div>
+</body>
+</html>
