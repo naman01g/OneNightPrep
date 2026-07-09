@@ -59,15 +59,11 @@ const ensureUserDocument = async (user) => {
 
   await setDoc(userRef, {
     uid: user.uid,
-    email: user.email || null,
     displayName: user.displayName || null,
+    email: user.email || null,
     photoURL: user.photoURL || null,
     provider: "google",
     role: "user",
-    premium: {
-      oneNightPlus: false,
-    },
-    purchases: {},
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   });

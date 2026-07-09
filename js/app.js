@@ -20,8 +20,6 @@ const materialDescription = document.querySelector("#material-description");
 const probabilityLegend = document.querySelector("#probability-legend");
 const materialGrid = document.querySelector("#material-grid");
 const message = document.querySelector("#selection-message");
-const justTonightCard = document.querySelector("#just-tonight-card");
-
 const buildUrl = (page, values = {}) => {
   const urlParams = new URLSearchParams();
   Object.entries(values).forEach(([key, value]) => {
@@ -30,17 +28,6 @@ const buildUrl = (page, values = {}) => {
   const query = urlParams.toString();
   return query ? `${page}?${query}` : page;
 };
-
-const purchaseKey = () => [
-  "onenight-prep",
-  "just-tonight",
-  year,
-  exam,
-  branch || "no-branch",
-  subject,
-].join("|");
-
-const hasJustTonightAccess = () => localStorage.getItem(purchaseKey()) === "true";
 
 if (yearElement) yearElement.textContent = year;
 if (examElement) examElement.textContent = exam;
@@ -154,10 +141,6 @@ document.querySelectorAll(".subject-card[data-subject]").forEach((card) => {
   card.href = buildUrl("time.html", { year, exam, branch, subject: card.dataset.subject });
 });
 
-if (justTonightCard) {
-  justTonightCard.classList.toggle("has-night-access", hasJustTonightAccess());
-}
-
 document.querySelectorAll(".time-card").forEach((button) => {
   button.addEventListener("click", () => {
     const isJustTonight = button.dataset.time === "Just Tonight";
@@ -168,9 +151,11 @@ document.querySelectorAll(".time-card").forEach((button) => {
 
     button.classList.add("selected");
 
-    if (isJustTonight && !hasJustTonightAccess()) {
+    if (isJustTonight) {
       if (message) {
-        message.textContent = `Sign in to continue with Just Tonight for ${subject}.`;
+        message.textContent = window.OneNightAuth?.getCurrentUser()
+          ? `Just Tonight access is not available yet for ${subject}.`
+          : `Sign in to continue with Just Tonight for ${subject}.`;
       }
 
       if (!window.OneNightAuth?.getCurrentUser()) {
