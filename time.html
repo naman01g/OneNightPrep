@@ -25,9 +25,9 @@
 
     <main class="time-main">
       <section class="page-heading time-heading">
-        <p class="eyebrow">Step 02 · Set your pace</p>
+        <p class="eyebrow">Step 05 · Set your pace</p>
         <h1>How much time<br>do you have?</h1>
-        <p><span id="selected-year">Your year</span> · <span id="selected-subject">Your subject</span></p>
+        <p><span id="selected-year">Your year</span> · <span id="selected-exam">Your exam</span> · <span id="selected-subject">Your subject</span></p>
       </section>
 
       <section class="time-grid" aria-label="Choose time remaining">
@@ -45,8 +45,9 @@
           <small>Prioritize the concepts that matter most.</small>
           <i aria-hidden="true">→</i>
         </button>
-        <button class="time-card urgent" type="button" data-time="Just Tonight">
+        <button class="time-card urgent" type="button" data-time="Just Tonight" id="just-tonight-card">
           <span class="popular-tag">Most picked</span>
+          <span class="lock-icon" aria-hidden="true">🔒</span>
           <span class="time-icon" aria-hidden="true">⌁</span>
           <span class="time-label">All hands on deck</span>
           <strong>Just Tonight</strong>

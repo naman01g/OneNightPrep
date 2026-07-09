@@ -47,15 +47,15 @@ body {
   }
   25% {
     background-position: 20% 15%, 75% 80%, 50% 20%;
-    filter: hue-rotate(30deg);
+    filter: hue-rotate(15deg);
   }
   50% {
     background-position: 16% 10%, 84% 88%, 100% 50%;
-    filter: hue-rotate(60deg);
+    filter: hue-rotate(25deg);
   }
   75% {
     background-position: 5% 20%, 90% 70%, 60% 80%;
-    filter: hue-rotate(20deg);
+    filter: hue-rotate(10deg);
   }
 }
 
@@ -356,7 +356,8 @@ footer {
   gap: 14px;
 }
 
-.branch-grid {
+.branch-grid,
+.exam-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
@@ -424,6 +425,76 @@ footer {
   transform: translateY(0);
 }
 
+
+#material-description.study-intro {
+  font-size: 1.12rem;
+  line-height: 1.75;
+}
+
+#material-description.night-intro {
+  font-size: clamp(1.45rem, 3vw, 2.15rem);
+  line-height: 1.55;
+}
+
+.probability-meter {
+  margin: -14px 0 28px;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.probability-meter > span {
+  display: block;
+  margin-bottom: 12px;
+  color: var(--blue-light);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.probability-meter div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.probability-meter div span {
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(17, 26, 44, 0.95);
+  color: #c3cede;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.paper-section {
+  justify-content: flex-start;
+  gap: 18px;
+}
+
+.paper-section ul {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.9;
+}
+
+.question-card {
+  gap: 18px;
+  justify-content: flex-start;
+}
+
+.material-card .question-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
 .time-main {
   display: flex;
   padding-top: 50px;
@@ -456,6 +527,7 @@ footer {
   padding: 28px;
   flex-direction: column;
   align-items: flex-start;
+  overflow: hidden;
   border: 1px solid var(--border);
   border-radius: 16px;
   background: linear-gradient(150deg, rgba(18, 27, 45, 0.98), rgba(11, 17, 29, 0.98));
@@ -537,7 +609,7 @@ footer {
 
 .popular-tag {
   position: absolute;
-  top: 14px;
+  top: -15px;
   right: 14px;
   padding: 5px 8px;
   border-radius: 999px;
@@ -547,6 +619,88 @@ footer {
   font-weight: 700;
   letter-spacing: 0.07em;
   text-transform: uppercase;
+}
+
+
+.time-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.lock-icon {
+  position: absolute;
+  top: 48px;
+  right: 17px;
+  z-index: 2;
+  display: grid;
+  width: 27px;
+  height: 27px;
+  place-items: center;
+  border: 1px solid rgba(174, 148, 255, 0.24);
+  border-radius: 999px;
+  color: #cfc1ff;
+  background: rgba(28, 20, 55, 0.72);
+  font-size: 0.72rem;
+  line-height: 1;
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.time-card.urgent.has-night-access {
+  border-color: rgba(236, 191, 91, 0.48);
+  background:
+    radial-gradient(circle at 88% 14%, rgba(236, 191, 91, 0.16), transparent 28%),
+    radial-gradient(circle at 16% 88%, rgba(36, 124, 255, 0.18), transparent 34%),
+    linear-gradient(150deg, rgba(22, 31, 49, 0.98), rgba(12, 18, 32, 0.98));
+  box-shadow: 0 18px 44px rgba(31, 89, 164, 0.14), inset 0 1px rgba(255, 226, 156, 0.08);
+}
+
+.time-card.urgent.has-night-access::after {
+  position: absolute;
+  inset: -40%;
+  z-index: 0;
+  pointer-events: none;
+  content: "";
+  background:
+    radial-gradient(circle at 42% 34%, rgba(255, 224, 150, 0.22) 0 1px, transparent 2px),
+    radial-gradient(circle at 70% 58%, rgba(100, 165, 255, 0.2) 0 1px, transparent 2px),
+    radial-gradient(circle at 28% 70%, rgba(255, 224, 150, 0.16) 0 1px, transparent 2px);
+  opacity: 0.34;
+  animation: subtle-sparkle 3.8s ease-in-out infinite;
+}
+
+.time-card.urgent.has-night-access:hover,
+.time-card.urgent.has-night-access.selected {
+  border-color: rgba(236, 191, 91, 0.7);
+  box-shadow: 0 22px 50px rgba(31, 89, 164, 0.2), 0 0 24px rgba(236, 191, 91, 0.08);
+}
+
+.time-card.urgent.has-night-access .lock-icon {
+  opacity: 0;
+  transform: scale(0.8);
+}
+
+.time-card.urgent.has-night-access .time-icon {
+  border-color: rgba(236, 191, 91, 0.34);
+  color: #f0cc78;
+  background: rgba(36, 124, 255, 0.1);
+}
+
+.time-card.urgent.has-night-access .time-label,
+.time-card.urgent.has-night-access i {
+  color: #f0cc78;
+}
+
+@keyframes subtle-sparkle {
+  0%,
+  100% {
+    opacity: 0.22;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  50% {
+    opacity: 0.42;
+    transform: translate3d(2%, -1%, 0) scale(1.03);
+  }
 }
 
 .selection-message {
