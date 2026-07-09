@@ -170,7 +170,11 @@ document.querySelectorAll(".time-card").forEach((button) => {
 
     if (isJustTonight && !hasJustTonightAccess()) {
       if (message) {
-        message.textContent = `Just Tonight is locked for ${subject}.`;
+        message.textContent = `Sign in to continue with Just Tonight for ${subject}.`;
+      }
+
+      if (!window.OneNightAuth?.getCurrentUser()) {
+        window.OneNightAuth?.signIn();
       }
       return;
     }
