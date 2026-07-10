@@ -54,15 +54,25 @@
               </select>
             </div>
             <div class="admin-field">
-              <label for="content-exam">Exam Type</label>
-              <select id="content-exam" required>
-                <option>ST</option>
-                <option>PUT</option>
-                <option>End Semester</option>
-              </select>
-            </div>
-            <div class="admin-field">
-              <label for="content-subject">Subject</label>
+  <label for="content-exam">Exam Type</label>
+  <select id="content-exam" required>
+    <option>ST</option>
+    <option>PUT</option>
+    <option>End Semester</option>
+  </select>
+</div>
+
+<div class="admin-field">
+  <label for="content-time">Time Left</label>
+  <select id="content-time" required>
+    <option value="2+ Days Left">2+ Days Left</option>
+    <option value="1 Day Left">1 Day Left</option>
+    <option value="Just Tonight">Just Tonight</option>
+  </select>
+</div>
+
+<div class="admin-field">
+  <label for="content-subject">Subject</label>
               <select id="content-subject" required>
                 <option value="">Select subject</option>
               </select>
@@ -239,11 +249,7 @@
       }));
     };
 
-    const filterSubjectsByBranch = (subjects, branch) => subjects.filter((subject) => {
-      if (subject.branch) return subject.branch === branch;
-      if (subject.year) return subject.year === getSubjectYear(branch);
-      return branch === "1st Year";
-    });
+    const filterSubjectsByBranch = (subjects, branch) => subjects.filter(s => s.branch === branch);
 
     const renderComingSoonList = (subjects) => {
       comingSoonList.innerHTML = subjects.length ? "" : "No subjects found for this branch.";
@@ -362,16 +368,17 @@
     });
 
     document.querySelector("#remove-subject").addEventListener("click", async () => {
-      const subjectId = subjectDropdown.value;
-      if (!subjectId) {
-        subjectStatus.textContent = "Select a subject to remove.";
-        return;
-      }
+  const selectedOption = subjectDropdown.options[subjectDropdown.selectedIndex];
+  const subjectId = selectedOption?.dataset?.id;
+  if (!subjectId) {
+    subjectStatus.textContent = "Select a subject to remove.";
+    return;
+  }
 
-      await deleteDoc(doc(db, "subjects", subjectId));
-      subjectStatus.textContent = "Subject removed.";
-      await loadSubjects();
-    });
+  await deleteDoc(doc(db, "subjects", subjectId));
+  subjectStatus.textContent = "Subject removed.";
+  await loadSubjects();
+   });
 
     document.querySelector("#subject-branch").addEventListener("change", loadSubjects);
     document.querySelector("#content-year").addEventListener("change", loadSubjects);
