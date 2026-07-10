@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="OneNight.Prep admin panel.">
+  <title>Admin Panel — OneNight.Prep</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/cursor-light.js" defer></script>
+  <script type="module" src="js/auth.js"></script>
+</head>
+<body>
+  <div class="site-shell">
+    <aside id="ad-banner" aria-label="Advertisement">
+      <span>Advertisement</span>
+      <p>Your study break could be here</p>
+    </aside>
+
+    <header class="topbar">
+      <a class="back-link" href="index.html" aria-label="Back to home">
+        <span aria-hidden="true">←</span> Back home
+      </a>
+      <a class="mini-logo" href="index.html">OneNight<span>.Prep</span></a>
+    </header>
+
+    <main class="content-main">
+      <section class="page-heading">
+        <p class="eyebrow">Protected area</p>
+        <h1>Admin Panel</h1>
+        <p id="admin-access-status">Checking admin access...</p>
+      </section>
+
+      <section class="admin-panel" id="admin-panel" hidden>
+        <article class="subject-card admin-card">
+          <span>01</span>
+          <strong>Content Manager</strong>
+          <form class="admin-form" id="content-form">
+            <div class="admin-field">
+              <label for="content-year">Year</label>
+              <select id="content-year" required>
+                <option>1st Year</option>
+                <option>2nd Year</option>
+              </select>
+            </div>
+            <div class="admin-field">
+              <label for="content-branch">Branch</label>
+              <select id="content-branch" required>
+                <option value="1st Year">1st Year</option>
+                <option value="2nd Year > CSE/IT">2nd Year &gt; CSE/IT</option>
+                <option value="2nd Year > EE">2nd Year &gt; EE</option>
+                <option value="2nd Year > ECE">2nd Year &gt; ECE</option>
+                <option value="2nd Year > Mechanical">2nd Year &gt; Mechanical</option>
+                <option value="2nd Year > Civil">2nd Year &gt; Civil</option>
+              </select>
+            </div>
+            <div class="admin-field">
+              <label for="content-exam">Exam Type</label>
+              <select id="content-exam" required>
+                <option>ST</option>
+                <option>PUT</option>
+                <option>End Semester</option>
+              </select>
+            </div>
+            <div class="admin-field">
+              <label for="content-subject">Subject</label>
+              <select id="content-subject" required>
+                <option value="">Select subject</option>
+              </select>
+            </div>
+            <div class="admin-field">
+              <label for="content-pdf">Google Drive PDF link</label>
+              <input id="content-pdf" type="url" placeholder="https://drive.google.com/...">
+            </div>
+            <div class="admin-actions">
+              <button class="button button-secondary" type="button" id="save-pdf">Save PDF Link</button>
+            </div>
+            <div class="admin-field">
+              <label for="content-youtube">YouTube embed link</label>
+              <input id="content-youtube" type="url" placeholder="https://www.youtube.com/embed/...">
+            </div>
+            <div class="admin-actions">
+              <button class="button button-secondary" type="button" id="save-youtube">Save YouTube Link</button>
+            </div>
+            <p class="admin-status" id="content-status" aria-live="polite"></p>
+          </form>
+        </article>
+
+        <article class="subject-card admin-card">
+          <span>02</span>
+          <strong>Subject Manager</strong>
+          <form class="admin-form" id="subject-form">
+            <div class="admin-field">
+              <label for="subject-branch">Branch</label>
+              <select id="subject-branch" required>
+                <option value="1st Year">1st Year</option>
+                <option value="2nd Year > CSE/IT">2nd Year &gt; CSE/IT</option>
+                <option value="2nd Year > EE">2nd Year &gt; EE</option>
+                <option value="2nd Year > ECE">2nd Year &gt; ECE</option>
+                <option value="2nd Year > Mechanical">2nd Year &gt; Mechanical</option>
+                <option value="2nd Year > Civil">2nd Year &gt; Civil</option>
+              </select>
+            </div>
+            <div class="admin-field">
+              <label for="new-subject">Add new subject name</label>
+              <input id="new-subject" type="text" placeholder="Subject name">
+            </div>
+            <div class="admin-actions">
+              <button class="button button-secondary" type="button" id="add-subject">Add Subject</button>
+            </div>
+            <div class="admin-field">
+              <label for="existing-subjects">Remove existing subject</label>
+              <select id="existing-subjects">
+                <option value="">Select subject</option>
+              </select>
+            </div>
+            <div class="admin-actions">
+              <button class="button button-secondary" type="button" id="remove-subject">Remove Subject</button>
+            </div>
+            <div class="admin-field">
+              <label>Coming Soon</label>
+              <div id="coming-soon-list"></div>
+            </div>
+            <p class="admin-status" id="subject-status" aria-live="polite"></p>
+          </form>
+        </article>
+
+        <article class="subject-card admin-card">
+          <span>03</span>
+          <strong>Pricing Manager</strong>
+          <form class="admin-form" id="pricing-form">
+            <div class="admin-field">
+              <label for="price-st">ST price</label>
+              <input id="price-st" type="number" min="0" step="1" placeholder="0">
+            </div>
+            <div class="admin-field">
+              <label for="price-put">PUT price</label>
+              <input id="price-put" type="number" min="0" step="1" placeholder="0">
+            </div>
+            <div class="admin-field">
+              <label for="price-end-semester">End Semester price</label>
+              <input id="price-end-semester" type="number" min="0" step="1" placeholder="0">
+            </div>
+            <div class="admin-actions">
+              <button class="button button-secondary" type="button" id="save-pricing">Save Pricing</button>
+            </div>
+            <div class="admin-field">
+              <label for="coupon-code">Coupon code</label>
+              <input id="coupon-code" type="text" placeholder="ONENIGHT10">
+            </div>
+            <div class="admin-field">
+              <label for="coupon-discount">Discount %</label>
+              <input id="coupon-discount" type="number" min="0" max="100" step="1" placeholder="10">
+            </div>
+            <div class="admin-actions">
+              <button class="button button-secondary" type="button" id="save-coupon">Save Coupon</button>
+            </div>
+            <p class="admin-status" id="pricing-status" aria-live="polite"></p>
+          </form>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <script type="module">
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import {
+      collection,
+      deleteDoc,
+      doc,
+      getDoc,
+      getDocs,
+      serverTimestamp,
+      setDoc,
+      updateDoc,
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    import { auth, db } from "./js/firebase.js";
+
+    const accessStatus = document.querySelector("#admin-access-status");
+    const adminPanel = document.querySelector("#admin-panel");
+    const subjectDropdown = document.querySelector("#existing-subjects");
+    const contentSubjectDropdown = document.querySelector("#content-subject");
+    const comingSoonList = document.querySelector("#coming-soon-list");
+
+    const contentStatus = document.querySelector("#content-status");
+    const subjectStatus = document.querySelector("#subject-status");
+    const pricingStatus = document.querySelector("#pricing-status");
+
+    const branchOptions = [
+      "1st Year",
+      "2nd Year > CSE/IT",
+      "2nd Year > EE",
+      "2nd Year > ECE",
+      "2nd Year > Mechanical",
+      "2nd Year > Civil",
+    ];
+
+    const normalizeIdPart = (value) => value.trim().replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "").toLowerCase();
+
+    const getBranchForYear = (year) => year === "1st Year" ? "1st Year" : document.querySelector("#content-branch").value;
+
+    const getSubjectBranch = () => document.querySelector("#subject-branch").value;
+
+    const getSubjectYear = (branch) => branch === "1st Year" ? "1st Year" : "2nd Year";
+
+    const getSubjectDocId = (branch, name) => [branch, name].map(normalizeIdPart).join("_");
+
+    const getContentDocId = () => {
+      const year = document.querySelector("#content-year").value;
+      const exam = document.querySelector("#content-exam").value;
+      const subject = document.querySelector("#content-subject").value;
+      return [year, exam, subject].map(normalizeIdPart).join("_");
+    };
+
+    const getContentBase = () => {
+      const year = document.querySelector("#content-year").value;
+      return {
+        year,
+        branch: getBranchForYear(year),
+        examType: document.querySelector("#content-exam").value,
+        subject: document.querySelector("#content-subject").value,
+        updatedAt: serverTimestamp(),
+      };
+    };
+
+    const requireSubject = () => {
+      const subject = document.querySelector("#content-subject").value;
+      if (!subject) {
+        contentStatus.textContent = "Select a subject before saving content.";
+        return false;
+      }
+      return true;
+    };
+
+    const getAllSubjects = async () => {
+      const snapshot = await getDocs(collection(db, "subjects"));
+      return snapshot.docs.map((subjectDoc) => ({
+        id: subjectDoc.id,
+        ...subjectDoc.data(),
+      }));
+    };
+
+    const filterSubjectsByBranch = (subjects, branch) => subjects.filter((subject) => {
+      if (subject.branch) return subject.branch === branch;
+      if (subject.year) return subject.year === getSubjectYear(branch);
+      return branch === "1st Year";
+    });
+
+    const renderComingSoonList = (subjects) => {
+      comingSoonList.innerHTML = subjects.length ? "" : "No subjects found for this branch.";
+
+      subjects.forEach((subject) => {
+        const label = document.createElement("label");
+        label.style.display = "flex";
+        label.style.alignItems = "center";
+        label.style.gap = "8px";
+        label.style.margin = "8px 0";
+        label.style.color = "var(--muted)";
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = Boolean(subject.comingSoon);
+        checkbox.addEventListener("change", async () => {
+          await updateDoc(doc(db, "subjects", subject.id), {
+            comingSoon: checkbox.checked,
+            updatedAt: serverTimestamp(),
+          });
+          subjectStatus.textContent = `${subject.name || subject.id} updated.`;
+          await loadSubjects();
+        });
+
+        label.append(checkbox, `${subject.name || subject.id}`);
+        comingSoonList.appendChild(label);
+      });
+    };
+
+    const populateDropdown = (dropdown, subjects, placeholder) => {
+      dropdown.innerHTML = `<option value="">${placeholder}</option>`;
+
+      subjects.forEach((subject) => {
+        const option = document.createElement("option");
+        option.value = subject.name || subject.id;
+        option.dataset.id = subject.id;
+        option.textContent = subject.comingSoon ? `${subject.name || subject.id} (Coming Soon)` : subject.name || subject.id;
+        dropdown.appendChild(option);
+      });
+    };
+
+    const loadSubjects = async () => {
+      const subjects = await getAllSubjects();
+      const managerBranch = getSubjectBranch();
+      const contentYear = document.querySelector("#content-year").value;
+      const contentBranch = getBranchForYear(contentYear);
+      const managerSubjects = filterSubjectsByBranch(subjects, managerBranch);
+      const contentSubjects = filterSubjectsByBranch(subjects, contentBranch);
+
+      populateDropdown(subjectDropdown, managerSubjects, "Select subject");
+      populateDropdown(contentSubjectDropdown, contentSubjects, "Select subject");
+      renderComingSoonList(managerSubjects);
+    };
+
+    const protectAdminPage = () => {
+      onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+          window.location.href = "index.html";
+          return;
+        }
+
+        const userSnapshot = await getDoc(doc(db, "users", user.uid));
+        if (!userSnapshot.exists() || userSnapshot.data().role !== "admin") {
+          window.location.href = "index.html";
+          return;
+        }
+
+        accessStatus.textContent = "Admin access granted.";
+        adminPanel.hidden = false;
+        await loadSubjects();
+      });
+    };
+
+    document.querySelector("#save-pdf").addEventListener("click", async () => {
+      if (!requireSubject()) return;
+
+      await setDoc(doc(db, "content", getContentDocId()), {
+        ...getContentBase(),
+        pdfLink: document.querySelector("#content-pdf").value.trim(),
+      }, { merge: true });
+
+      contentStatus.textContent = "PDF link saved.";
+    });
+
+    document.querySelector("#save-youtube").addEventListener("click", async () => {
+      if (!requireSubject()) return;
+
+      await setDoc(doc(db, "content", getContentDocId()), {
+        ...getContentBase(),
+        youtubeEmbedLink: document.querySelector("#content-youtube").value.trim(),
+      }, { merge: true });
+
+      contentStatus.textContent = "YouTube embed link saved.";
+    });
+
+    document.querySelector("#add-subject").addEventListener("click", async () => {
+      const name = document.querySelector("#new-subject").value.trim();
+      if (!name) {
+        subjectStatus.textContent = "Add a subject name first.";
+        return;
+      }
+
+      const branch = getSubjectBranch();
+      await setDoc(doc(db, "subjects", getSubjectDocId(branch, name)), {
+        name,
+        year: getSubjectYear(branch),
+        branch,
+        comingSoon: false,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      }, { merge: true });
+
+      document.querySelector("#new-subject").value = "";
+      subjectStatus.textContent = "Subject added.";
+      await loadSubjects();
+    });
+
+    document.querySelector("#remove-subject").addEventListener("click", async () => {
+      const subjectId = subjectDropdown.value;
+      if (!subjectId) {
+        subjectStatus.textContent = "Select a subject to remove.";
+        return;
+      }
+
+      await deleteDoc(doc(db, "subjects", subjectId));
+      subjectStatus.textContent = "Subject removed.";
+      await loadSubjects();
+    });
+
+    document.querySelector("#subject-branch").addEventListener("change", loadSubjects);
+    document.querySelector("#content-year").addEventListener("change", loadSubjects);
+    document.querySelector("#content-branch").addEventListener("change", loadSubjects);
+
+    document.querySelector("#save-pricing").addEventListener("click", async () => {
+      await setDoc(doc(db, "pricing", "exam-types"), {
+        ST: Number(document.querySelector("#price-st").value || 0),
+        PUT: Number(document.querySelector("#price-put").value || 0),
+        endSemester: Number(document.querySelector("#price-end-semester").value || 0),
+        updatedAt: serverTimestamp(),
+      }, { merge: true });
+
+      pricingStatus.textContent = "Pricing saved.";
+    });
+
+    document.querySelector("#save-coupon").addEventListener("click", async () => {
+      const code = document.querySelector("#coupon-code").value.trim().toUpperCase();
+      const discountPercent = Number(document.querySelector("#coupon-discount").value || 0);
+
+      if (!code) {
+        pricingStatus.textContent = "Add a coupon code first.";
+        return;
+      }
+
+      await setDoc(doc(db, "pricing", `coupon_${code}`), {
+        code,
+        discountPercent,
+        updatedAt: serverTimestamp(),
+      }, { merge: true });
+
+      pricingStatus.textContent = "Coupon saved.";
+    });
+
+    protectAdminPage();
+  </script>
+</body>
+</html>

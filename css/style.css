@@ -594,6 +594,71 @@ footer {
   border-radius: 10px;
 }
 
+
+.admin-panel {
+  display: grid;
+  gap: 18px;
+}
+
+.admin-card {
+  gap: 16px;
+  justify-content: flex-start;
+}
+
+.admin-form {
+  display: grid;
+  gap: 12px;
+}
+
+.admin-field {
+  display: grid;
+  gap: 7px;
+}
+
+.admin-field label {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.admin-field input,
+.admin-field select {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 13px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  color: var(--text);
+  background: rgba(13, 19, 33, 0.72);
+  font: inherit;
+}
+
+.admin-field input:focus,
+.admin-field select:focus {
+  border-color: var(--border-bright);
+  outline: 3px solid rgba(100, 165, 255, 0.22);
+}
+
+.admin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.admin-actions .button {
+  min-height: 44px;
+  padding: 0 16px;
+  font-size: 0.88rem;
+}
+
+.admin-status {
+  min-height: 22px;
+  color: #9eb4d2;
+  font-size: 0.82rem;
+}
+
 .time-main {
   display: flex;
   padding-top: 50px;
