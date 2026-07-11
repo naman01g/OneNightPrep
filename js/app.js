@@ -2,7 +2,7 @@ const params = new URLSearchParams(window.location.search);
 const pageName = window.location.pathname.split("/").pop();
 const inferredYear = pageName === "year2.html" || pageName === "branch.html" ? "2nd Year" : "1st Year";
 const year = params.get("year") || inferredYear;
-const exam = params.get("exam") || "Your exam";
+const exam = params.get("exam") || "";
 const subject = params.get("subject") || "Your subject";
 const branch = params.get("branch") || "";
 const selectedTime = params.get("time") || "Your time left";
@@ -20,10 +20,13 @@ const materialDescription = document.querySelector("#material-description");
 const probabilityLegend = document.querySelector("#probability-legend");
 const materialGrid = document.querySelector("#material-grid");
 const message = document.querySelector("#selection-message");
+
 const buildUrl = (page, values = {}) => {
   const urlParams = new URLSearchParams();
   Object.entries(values).forEach(([key, value]) => {
-    if (value) urlParams.set(key, value);
+    if (value !== null && value !== undefined) {
+      urlParams.set(key, value);
+    }
   });
   const query = urlParams.toString();
   return query ? `${page}?${query}` : page;
@@ -56,15 +59,6 @@ if (materialBackLink) {
   materialBackLink.href = buildUrl("time.html", { year, exam, branch, subject });
 }
 
-const renderPaperSection = (title, papers) => `
-  <article class="subject-card material-card paper-section">
-    <span>${title}</span>
-    <ul>
-      ${papers.map((paper) => `<li>${paper}</li>`).join("")}
-    </ul>
-  </article>
-`;
-
 if (materialDescription) {
   materialDescription.classList.toggle("night-intro", selectedTime === "Just Tonight");
   materialDescription.classList.toggle("study-intro", selectedTime !== "Just Tonight");
@@ -78,68 +72,30 @@ if (materialDescription) {
   }
 }
 
-if (materialGrid && selectedTime === "2+ Days Left") {
-  materialGrid.innerHTML = [
-    renderPaperSection("Professor Solved Papers", [
-      "Solved Paper 1",
-      "Solved Paper 2",
-      "Solved Paper 3",
-      "Solved Paper 4",
-      "Solved Paper 5",
-    ]),
-    renderPaperSection("Practice Papers", [
-      "Unsolved Paper 1",
-      "Unsolved Paper 2",
-      "Unsolved Paper 3",
-    ]),
-  ].join("");
-}
-
-if (materialGrid && selectedTime === "1 Day Left") {
-  materialGrid.innerHTML = renderPaperSection("Professor Solved Papers", [
-    "Solved Paper 1",
-    "Solved Paper 2",
-    "Solved Paper 3",
-  ]);
-}
-
-if (probabilityLegend && selectedTime === "Just Tonight") {
-  probabilityLegend.hidden = false;
-  probabilityLegend.innerHTML = `
-    <span>Probability Meter</span>
-    <div>
-      <span>Extremely High</span>
-      <span>High</span>
-      <span>Medium</span>
-    </div>
-  `;
-}
-
-if (materialGrid && selectedTime === "Just Tonight") {
-  const imagePlaceholder = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='640' height='420' viewBox='0 0 640 420'%3E%3Crect width='640' height='420' rx='24' fill='%230d1321'/%3E%3Crect x='36' y='36' width='568' height='348' rx='18' fill='%23111a2c' stroke='%23202c42'/%3E%3Ctext x='320' y='188' text-anchor='middle' fill='%2364a5ff' font-family='Arial, sans-serif' font-size='26' font-weight='700'%3EUploaded Image%3C/text%3E%3Ctext x='320' y='228' text-anchor='middle' fill='%238c9ab1' font-family='Arial, sans-serif' font-size='18'%3EQuestion %2B Solution in one image%3C/text%3E%3C/svg%3E";
-  const questions = ["Extremely High", "High", "Medium"];
-
-  materialGrid.innerHTML = questions.map((probability) => `
-    <article class="subject-card material-card question-card">
-      <span>${probability}</span>
-      <img class="question-image" src="${imagePlaceholder}" alt="${probability} probability question and solution image">
-    </article>
-  `).join("");
-}
-
-
-document.querySelectorAll(".exam-card").forEach((card) => {
-  const targetPage = year.startsWith("2") ? "year2.html" : "year1.html";
-  card.href = buildUrl(targetPage, { year, exam: card.dataset.exam });
-});
-
 document.querySelectorAll(".branch-card[data-branch]").forEach((card) => {
   card.href = buildUrl("branch.html", { year: "2nd Year", exam, branch: card.dataset.branch });
 });
 
-document.querySelectorAll(".subject-card[data-subject]").forEach((card) => {
-  card.href = buildUrl("time.html", { year, exam, branch, subject: card.dataset.subject });
-});
+const syncSubjectCardLinks = () => {
+  document.querySelectorAll(".subject-card[data-subject]").forEach((card) => {
+    card.href = buildUrl("time.html", {
+      year,
+      exam,
+      branch,
+      subject: card.dataset.subject,
+    });
+  });
+};
+
+syncSubjectCardLinks();
+
+const subjectGrid = document.querySelector("#subject-grid");
+if (subjectGrid) {
+  new MutationObserver(syncSubjectCardLinks).observe(subjectGrid, {
+    childList: true,
+    subtree: true,
+  });
+}
 
 document.querySelectorAll(".time-card").forEach((button) => {
   button.addEventListener("click", () => {

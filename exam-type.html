@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,6 +11,7 @@
   <script src="js/cursor-light.js" defer></script>
   <script type="module" src="js/auth.js"></script>
 </head>
+
 <body>
   <div class="site-shell">
     <aside id="ad-banner" aria-label="Advertisement">
@@ -27,16 +29,44 @@
     <main class="content-main">
       <section class="page-heading">
         <p class="eyebrow">Step 02 · Choose exam type</p>
-        <h1 id="selected-year">Your year</h1>
-        <p>Select the exam you are preparing for.</p>
+        <h1>Choose your exam type</h1>
+        <p> Aaaallll.... izzzzz..... welllllll....❤️</p>
       </section>
 
       <section class="subject-grid exam-grid" aria-label="Exam types">
-        <a class="subject-card exam-card" href="year1.html?year=1st%20Year&amp;exam=ST" data-exam="ST" target="_blank" rel="noopener"><span>01</span><strong>ST</strong><i>Choose subjects →</i></a>
-        <a class="subject-card exam-card" href="year1.html?year=1st%20Year&amp;exam=PUT" data-exam="PUT" target="_blank" rel="noopener"><span>02</span><strong>PUT</strong><i>Choose subjects →</i></a>
-        <a class="subject-card exam-card" href="year1.html?year=1st%20Year&amp;exam=End%20Semester" data-exam="End Semester" target="_blank" rel="noopener"><span>03</span><strong>End Semester</strong><i>Choose subjects →</i></a>
+        <a class="subject-card exam-card" href="#" data-exam="ST">
+          <span>01</span>
+          <strong>ST</strong>
+          <i>Choose subjects →</i>
+        </a>
+
+        <a class="subject-card exam-card" href="#" data-exam="PUT">
+          <span>02</span>
+          <strong>PUT</strong>
+          <i>Choose subjects →</i>
+        </a>
+
+        <a class="subject-card exam-card" href="#" data-exam="End Semester">
+          <span>03</span>
+          <strong>End Semester</strong>
+          <i>Choose subjects →</i>
+        </a>
       </section>
     </main>
   </div>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const year = params.get("year") || "1st Year";
+
+    document.querySelectorAll(".exam-card").forEach(card => {
+      const nextPage = year === "2nd Year"
+        ? "year2.html"
+        : "year1.html";
+
+      card.href =
+        `${nextPage}?year=${encodeURIComponent(year)}&exam=${encodeURIComponent(card.dataset.exam)}`;
+    });
+  </script>
 </body>
+
 </html>

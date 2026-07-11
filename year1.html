@@ -42,8 +42,20 @@
     import { db } from "./js/firebase.js";
 
     const params = new URLSearchParams(window.location.search);
+    const year = params.get("year") || "1st Year";
     const exam = params.get("exam") || "";
+    const branch = params.get("branch") || "";
     const grid = document.getElementById("subject-grid");
+
+    const buildUrl = (page, values = {}) => {
+      const urlParams = new URLSearchParams();
+      Object.entries(values).forEach(([key, value]) => {
+        if (value !== null && value !== undefined) {
+          urlParams.set(key, value);
+        }
+      });
+      return `${page}?${urlParams.toString()}`;
+    };
 
     const loadSubjects = async () => {
       try {
@@ -62,8 +74,12 @@
 
         subjects.forEach((subject, index) => {
           const num = String(index + 1).padStart(2, "0");
-          const encodedSubject = encodeURIComponent(subject.name);
-          const encodedExam = encodeURIComponent(exam);
+          const subjectHref = buildUrl("time.html", {
+            year,
+            exam,
+            branch,
+            subject: subject.name,
+          });
 
           if (subject.comingSoon) {
             grid.innerHTML += `
@@ -74,7 +90,7 @@
               </div>`;
           } else {
             grid.innerHTML += `
-              <a class="subject-card" href="time.html?year=1st%20Year&exam=${encodedExam}&subject=${encodedSubject}" target="_blank" rel="noopener">
+              <a class="subject-card" href="${subjectHref}" target="_blank" rel="noopener">
                 <span>${num}</span>
                 <strong>${subject.name}</strong>
                 <i>Start prep →</i>

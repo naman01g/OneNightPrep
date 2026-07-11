@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,6 +11,7 @@
   <script src="js/cursor-light.js" defer></script>
   <script type="module" src="js/auth.js"></script>
 </head>
+
 <body>
   <div class="site-shell">
     <aside id="ad-banner" aria-label="Advertisement">
@@ -26,7 +28,8 @@
       <section class="page-heading">
         <p class="eyebrow">Step 06 · Study material</p>
         <h1 id="selected-subject">Your subject</h1>
-        <p id="material-description"><span id="selected-year">Your year</span> · <span id="selected-exam">Your exam</span> · <span id="selected-time">Your time left</span></p>
+        <p id="material-description"><span id="selected-year">Your year</span> · <span id="selected-exam">Your
+            exam</span> · <span id="selected-time">Your time left</span></p>
       </section>
       <section class="probability-meter" id="probability-legend" aria-label="Probability meter" hidden></section>
       <section class="subject-grid exam-grid" id="material-grid" aria-label="Study material"></section>
@@ -41,52 +44,145 @@
     const year = params.get("year") || "";
     const exam = params.get("exam") || "";
     const subject = params.get("subject") || "";
-    const time = params.get("time") || "";
+    const rawTime = params.get("time") || "";
+    const time = decodeURIComponent(rawTime.replace(/\+/g, "%20")).replace(/%2B/gi, "+");
+    const rawBranch = params.get("branch") || "";
+    const grid = document.getElementById("material-grid");
+    const probabilityLegend = document.getElementById("probability-legend");
 
     const normalizeIdPart = (value) => value.trim().replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "").toLowerCase();
-    const getContentDocId = () => [year, exam, subject, time].map(normalizeIdPart).join("_");
 
-    const grid = document.getElementById("material-grid");
+    const getBranch = () => {
+      if (year === "1st Year") return "1st Year";
+      if (/cse|it/i.test(rawBranch)) return "2nd Year > CSE/IT";
+      if (/electrical|ee/i.test(rawBranch)) return "2nd Year > EE";
+      if (/electronics|communication|ece/i.test(rawBranch)) return "2nd Year > ECE";
+      if (/mechanical/i.test(rawBranch)) return "2nd Year > Mechanical";
+      if (/civil/i.test(rawBranch)) return "2nd Year > Civil";
+      return rawBranch;
+    };
+
+    const getContentDocId = () => [year, getBranch(), exam, subject, time].map(normalizeIdPart).join("_");
+
+    const createCard = (item, clickHandler) => {
+      const card = document.createElement("button");
+      card.className = "subject-card material-card material-action-card";
+      card.type = "button";
+      card.innerHTML = `<span>${item.type || "Video"}</span><strong>${item.name}</strong><i>Open →</i>`;
+      card.addEventListener("click", () => clickHandler(item));
+      return card;
+    };
+
+    const createSection = (title, items, clickHandler) => {
+      const section = document.createElement("section");
+      section.className = "material-folder";
+      section.innerHTML = `<h2>${title}</h2>`;
+
+      const folderGrid = document.createElement("div");
+      folderGrid.className = "subject-grid exam-grid";
+
+      if (!items.length) {
+        const empty = document.createElement("p");
+        empty.className = "admin-status";
+        empty.textContent = "No items added yet.";
+        folderGrid.appendChild(empty);
+      } else {
+        items.forEach((item) => folderGrid.appendChild(createCard(item, clickHandler)));
+      }
+
+      section.appendChild(folderGrid);
+      return section;
+    };
+
+    const openPdf = (item) => {
+      const viewer = document.getElementById("material-viewer");
+      viewer.innerHTML = `
+        <h2>${item.name}</h2>
+        <iframe src="${item.link}" title="${item.name}" loading="lazy"></iframe>
+      `;
+      viewer.scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+
+    const openVideo = (item) => {
+      const viewer = document.getElementById("material-viewer");
+      viewer.innerHTML = `
+        <h2>${item.name}</h2>
+        <iframe src="${item.link}" title="${item.name}" loading="lazy" allowfullscreen></iframe>
+      `;
+      viewer.scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+
+    const renderRegularMaterial = (papers, videos) => {
+      const solved = papers.filter((paper) => paper.type === "solved");
+      const unsolved = papers.filter((paper) => paper.type === "unsolved");
+
+      grid.appendChild(createSection("Solved Papers", solved, openPdf));
+      grid.appendChild(createSection("Unsolved Papers", unsolved, openPdf));
+      grid.appendChild(createSection("Video Lectures", videos, openVideo));
+    };
+
+    const renderTonightMaterial = (papers, videos) => {
+      const images = papers.filter((paper) => paper.type === "image");
+      const imageSection = document.createElement("section");
+      imageSection.className = "material-folder";
+      imageSection.innerHTML = `<h2>Question Images</h2>`;
+
+      const imageGrid = document.createElement("div");
+      imageGrid.className = "subject-grid exam-grid";
+
+      if (!images.length) {
+        const empty = document.createElement("p");
+        empty.className = "admin-status";
+        empty.textContent = "No images added yet.";
+        imageGrid.appendChild(empty);
+      } else {
+        images.forEach((image) => {
+          const card = document.createElement("article");
+          card.className = "subject-card material-card question-card";
+          card.innerHTML = `<span>${image.name}</span><img class="question-image" src="${image.link}" alt="${image.name}">`;
+          imageGrid.appendChild(card);
+        });
+      }
+
+      imageSection.appendChild(imageGrid);
+      grid.appendChild(imageSection);
+      grid.appendChild(createSection("Video Lectures", videos, openVideo));
+    };
 
     const loadContent = async () => {
+      console.log("Doc ID:", getContentDocId());
       try {
-        const snapshot = await getDoc(doc(db, "content", getContentDocId()));
+        if (probabilityLegend) probabilityLegend.hidden = true;
         grid.innerHTML = "";
 
+        const snapshot = await getDoc(doc(db, "content", getContentDocId()));
         if (!snapshot.exists()) {
-          grid.innerHTML = `<p style="color:var(--muted)">No content added yet. Check back soon!</p>`;
+          grid.innerHTML = `<p class="admin-status">No content added yet. Check back soon!</p>`;
           return;
         }
 
         const data = snapshot.data();
+        const papers = Array.isArray(data.papers) ? data.papers : [];
+        const videos = Array.isArray(data.videos) ? data.videos : [];
 
-        if (data.pdfLink) {
-          grid.innerHTML += `
-            <div class="material-section" style="width:100%">
-              <h3 style="color:var(--text);margin-bottom:12px;">Study Material</h3>
-              <iframe src="${data.pdfLink}" width="100%" height="600px" style="border:none;border-radius:12px;"></iframe>
-            </div>`;
+        if (time === "Just Tonight") {
+          renderTonightMaterial(papers, videos);
+        } else {
+          renderRegularMaterial(papers, videos);
         }
 
-        if (data.youtubeEmbedLink) {
-          grid.innerHTML += `
-            <div class="material-section" style="width:100%;margin-top:24px;">
-              <h3 style="color:var(--text);margin-bottom:12px;">Video Lecture</h3>
-              <iframe src="${data.youtubeEmbedLink}" width="100%" height="400px" style="border:none;border-radius:12px;" allowfullscreen></iframe>
-            </div>`;
-        }
-
-        if (!data.pdfLink && !data.youtubeEmbedLink) {
-          grid.innerHTML = `<p style="color:var(--muted)">Content coming soon!</p>`;
-        }
-
+        const viewer = document.createElement("section");
+        viewer.className = "material-viewer";
+        viewer.id = "material-viewer";
+        grid.appendChild(viewer);
       } catch (err) {
         console.error(err);
-        grid.innerHTML = `<p style="color:var(--muted)">Error loading content. Please try again.</p>`;
+        grid.innerHTML = `<p class="admin-status">Error loading content. Please try again.</p>`;
       }
     };
 
     loadContent();
   </script>
 </body>
+
 </html>

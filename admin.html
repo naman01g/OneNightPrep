@@ -80,18 +80,42 @@
               </select>
             </div>
             <div class="admin-field">
-              <label for="content-pdf">Google Drive PDF link</label>
-              <input id="content-pdf" type="url" placeholder="https://drive.google.com/...">
-            </div>
-            <div class="admin-actions">
-              <button class="button button-secondary" type="button" id="save-pdf">Save PDF Link</button>
+              <label for="paper-category">Paper Category</label>
+              <select id="paper-category" required>
+                <option value="solved">Solved Paper</option>
+                <option value="unsolved">Unsolved Paper</option>
+                <option value="image">Image</option>
+              </select>
             </div>
             <div class="admin-field">
-              <label for="content-youtube">YouTube embed link</label>
-              <input id="content-youtube" type="url" placeholder="https://www.youtube.com/embed/...">
+              <label for="paper-name">Paper Name</label>
+              <input id="paper-name" type="text" placeholder="Paper 1">
+            </div>
+            <div class="admin-field">
+              <label for="paper-link">Google Drive preview link</label>
+              <input id="paper-link" type="url" placeholder="https://drive.google.com/...">
             </div>
             <div class="admin-actions">
-              <button class="button button-secondary" type="button" id="save-youtube">Save YouTube Link</button>
+              <button class="button button-secondary" type="button" id="add-paper">Add Paper</button>
+            </div>
+            <div class="admin-field">
+              <label>Existing Papers</label>
+              <div id="papers-list"></div>
+            </div>
+            <div class="admin-field">
+              <label for="video-name">Video Name</label>
+              <input id="video-name" type="text" placeholder="Chapter 1 Lecture">
+            </div>
+            <div class="admin-field">
+              <label for="video-link">YouTube embed link</label>
+              <input id="video-link" type="url" placeholder="https://www.youtube.com/embed/...">
+            </div>
+            <div class="admin-actions">
+              <button class="button button-secondary" type="button" id="add-video">Add Video</button>
+            </div>
+            <div class="admin-field">
+              <label>Existing Videos</label>
+              <div id="videos-list"></div>
             </div>
             <p class="admin-status" id="content-status" aria-live="polite"></p>
           </form>
@@ -192,6 +216,8 @@
     const subjectDropdown = document.querySelector("#existing-subjects");
     const contentSubjectDropdown = document.querySelector("#content-subject");
     const comingSoonList = document.querySelector("#coming-soon-list");
+    const papersList = document.querySelector("#papers-list");
+    const videosList = document.querySelector("#videos-list");
 
     const contentStatus = document.querySelector("#content-status");
     const subjectStatus = document.querySelector("#subject-status");
@@ -253,7 +279,11 @@
       }));
     };
 
-    const filterSubjectsByBranch = (subjects, branch) => subjects.filter(s => s.branch === branch);
+    const filterSubjectsByBranch = (subjects, branch) => subjects.filter((subject) => {
+      if (subject.branch) return subject.branch === branch;
+      if (subject.year) return subject.year === getSubjectYear(branch);
+      return branch === "1st Year";
+    });
 
     const renderComingSoonList = (subjects) => {
       comingSoonList.innerHTML = subjects.length ? "" : "No subjects found for this branch.";
@@ -310,6 +340,68 @@
       populateDropdown(subjectDropdown, managerSubjects, "Select subject");
       populateDropdown(contentSubjectDropdown, contentSubjects, "Select subject");
       renderComingSoonList(managerSubjects);
+      await loadContentItems();
+    };
+
+
+
+    const getContentRef = () => doc(db, "content", getContentDocId());
+
+    const getCurrentContent = async () => {
+      if (!requireSubject()) return null;
+      const snapshot = await getDoc(getContentRef());
+      return snapshot.exists() ? snapshot.data() : { papers: [], videos: [] };
+    };
+
+    const renderContentItems = (container, items, type) => {
+      container.innerHTML = items.length ? "" : `No ${type} added yet.`;
+
+      items.forEach((item, index) => {
+        const row = document.createElement("div");
+        row.style.display = "flex";
+        row.style.justifyContent = "space-between";
+        row.style.alignItems = "center";
+        row.style.gap = "10px";
+        row.style.margin = "8px 0";
+        row.style.color = "var(--muted)";
+
+        const label = document.createElement("span");
+        label.textContent = type === "papers" ? `${item.name} · ${item.type}` : item.name;
+
+        const button = document.createElement("button");
+        button.className = "button button-secondary";
+        button.type = "button";
+        button.textContent = "Delete";
+        button.addEventListener("click", async () => {
+          const content = await getCurrentContent();
+          if (!content) return;
+          const nextItems = [...(content[type] || [])];
+          nextItems.splice(index, 1);
+          await setDoc(getContentRef(), {
+            ...getContentBase(),
+            [type]: nextItems,
+          }, { merge: true });
+          contentStatus.textContent = `${type === "papers" ? "Paper" : "Video"} deleted.`;
+          await loadContentItems();
+        });
+
+        row.append(label, button);
+        container.appendChild(row);
+      });
+    };
+
+    const loadContentItems = async () => {
+      const selectedSubject = document.querySelector("#content-subject").value;
+      if (!selectedSubject) {
+        papersList.innerHTML = "Select a subject to view papers.";
+        videosList.innerHTML = "Select a subject to view videos.";
+        return;
+      }
+
+      const snapshot = await getDoc(getContentRef());
+      const content = snapshot.exists() ? snapshot.data() : { papers: [], videos: [] };
+      renderContentItems(papersList, content.papers || [], "papers");
+      renderContentItems(videosList, content.videos || [], "videos");
     };
 
     const protectAdminPage = () => {
@@ -328,29 +420,53 @@
         accessStatus.textContent = "Admin access granted.";
         adminPanel.hidden = false;
         await loadSubjects();
+        await loadContentItems();
       });
     };
 
-    document.querySelector("#save-pdf").addEventListener("click", async () => {
-      if (!requireSubject()) return;
+    document.querySelector("#add-paper").addEventListener("click", async () => {
+      const content = await getCurrentContent();
+      if (!content) return;
 
-      await setDoc(doc(db, "content", getContentDocId()), {
+      const name = document.querySelector("#paper-name").value.trim();
+      const link = document.querySelector("#paper-link").value.trim();
+      const type = document.querySelector("#paper-category").value;
+      if (!name || !link) {
+        contentStatus.textContent = "Add paper name and link first.";
+        return;
+      }
+
+      await setDoc(getContentRef(), {
         ...getContentBase(),
-        pdfLink: document.querySelector("#content-pdf").value.trim(),
+        papers: [...(content.papers || []), { name, type, link }],
       }, { merge: true });
 
-      contentStatus.textContent = "PDF link saved.";
+      document.querySelector("#paper-name").value = "";
+      document.querySelector("#paper-link").value = "";
+      contentStatus.textContent = "Paper added.";
+      await loadContentItems();
     });
 
-    document.querySelector("#save-youtube").addEventListener("click", async () => {
-      if (!requireSubject()) return;
+    document.querySelector("#add-video").addEventListener("click", async () => {
+      const content = await getCurrentContent();
+      if (!content) return;
 
-      await setDoc(doc(db, "content", getContentDocId()), {
+      const name = document.querySelector("#video-name").value.trim();
+      const link = document.querySelector("#video-link").value.trim();
+      if (!name || !link) {
+        contentStatus.textContent = "Add video name and link first.";
+        return;
+      }
+
+      await setDoc(getContentRef(), {
         ...getContentBase(),
-        youtubeEmbedLink: document.querySelector("#content-youtube").value.trim(),
+        videos: [...(content.videos || []), { name, link }],
       }, { merge: true });
 
-      contentStatus.textContent = "YouTube embed link saved.";
+      document.querySelector("#video-name").value = "";
+      document.querySelector("#video-link").value = "";
+      contentStatus.textContent = "Video added.";
+      await loadContentItems();
     });
 
     document.querySelector("#add-subject").addEventListener("click", async () => {
@@ -391,6 +507,9 @@
     document.querySelector("#subject-branch").addEventListener("change", loadSubjects);
     document.querySelector("#content-year").addEventListener("change", loadSubjects);
     document.querySelector("#content-branch").addEventListener("change", loadSubjects);
+    document.querySelector("#content-exam").addEventListener("change", loadContentItems);
+    document.querySelector("#content-time").addEventListener("change", loadContentItems);
+    document.querySelector("#content-subject").addEventListener("change", loadContentItems);
 
     document.querySelector("#save-pricing").addEventListener("click", async () => {
       await setDoc(doc(db, "pricing", "exam-types"), {

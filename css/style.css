@@ -595,6 +595,47 @@ footer {
 }
 
 
+.material-folder {
+  display: grid;
+  grid-column: 1 / -1;
+  gap: 14px;
+}
+
+.material-folder h2,
+.material-viewer h2 {
+  margin: 0;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 1.2rem;
+  letter-spacing: -0.03em;
+}
+
+.material-action-card {
+  width: 100%;
+  cursor: pointer;
+  color: inherit;
+  text-align: left;
+}
+
+.material-viewer {
+  display: grid;
+  grid-column: 1 / -1;
+  gap: 14px;
+  margin-top: 10px;
+}
+
+.material-viewer iframe {
+  width: 100%;
+  min-height: 560px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: rgba(13, 19, 33, 0.72);
+}
+
+.material-folder .question-image {
+  max-height: none;
+}
+
+
 .admin-panel {
   display: grid;
   gap: 18px;
