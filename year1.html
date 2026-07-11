@@ -31,19 +31,64 @@
         <p><span id="selected-exam">Your exam</span> · What are we conquering tonight?</p>
       </section>
 
-      <section class="subject-grid" aria-label="First-year subjects">
-        <a class="subject-card" href="time.html?year=1st%20Year&amp;subject=Soft%20Skills" data-subject="Soft Skills" target="_blank" rel="noopener"><span>01</span><strong>Soft Skills</strong><i>Start prep →</i></a>
-        <a class="subject-card" href="time.html?year=1st%20Year&amp;subject=EVS" data-subject="EVS" target="_blank" rel="noopener"><span>02</span><strong>EVS</strong><i>Start prep →</i></a>
-        <a class="subject-card" href="time.html?year=1st%20Year&amp;subject=Electrical%20Eng." data-subject="Electrical Eng." target="_blank" rel="noopener"><span>03</span><strong>Electrical Eng.</strong><i>Start prep →</i></a>
-        <a class="subject-card" href="time.html?year=1st%20Year&amp;subject=Electronics%20Eng." data-subject="Electronics Eng." target="_blank" rel="noopener"><span>04</span><strong>Electronics Eng.</strong><i>Start prep →</i></a>
-        <a class="subject-card" href="time.html?year=1st%20Year&amp;subject=Mechanical%20Eng." data-subject="Mechanical Eng." target="_blank" rel="noopener"><span>05</span><strong>Mechanical Eng.</strong><i>Start prep →</i></a>
-        <a class="subject-card" href="time.html?year=1st%20Year&amp;subject=PPS%20%28C%20Programming%29" data-subject="PPS (C Programming)" target="_blank" rel="noopener"><span>06</span><strong>PPS (C Programming)</strong><i>Start prep →</i></a>
-        <a class="subject-card" href="time.html?year=1st%20Year&amp;subject=Physics" data-subject="Physics" target="_blank" rel="noopener"><span>07</span><strong>Physics</strong><i>Start prep →</i></a>
-        <a class="subject-card" href="time.html?year=1st%20Year&amp;subject=Chemistry" data-subject="Chemistry" target="_blank" rel="noopener"><span>08</span><strong>Chemistry</strong><i>Start prep →</i></a>
-        <a class="subject-card" href="time.html?year=1st%20Year&amp;subject=Maths%201" data-subject="Maths 1" target="_blank" rel="noopener"><span>09</span><strong>Maths 1</strong><i>Start prep →</i></a>
-        <a class="subject-card" href="time.html?year=1st%20Year&amp;subject=Maths%202" data-subject="Maths 2" target="_blank" rel="noopener"><span>10</span><strong>Maths 2</strong><i>Start prep →</i></a>
+      <section class="subject-grid" id="subject-grid" aria-label="First-year subjects">
+        <p style="color:var(--muted)">Loading subjects...</p>
       </section>
     </main>
   </div>
+
+  <script type="module">
+    import { collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    import { db } from "./js/firebase.js";
+
+    const params = new URLSearchParams(window.location.search);
+    const exam = params.get("exam") || "";
+    const grid = document.getElementById("subject-grid");
+
+    const loadSubjects = async () => {
+      try {
+        const q = query(collection(db, "subjects"), where("branch", "==", "1st Year"));
+        const snapshot = await getDocs(q);
+
+        let subjects = [];
+        snapshot.forEach(doc => subjects.push({ id: doc.id, ...doc.data() }));
+
+        grid.innerHTML = "";
+
+        if (subjects.length === 0) {
+          grid.innerHTML = `<p style="color:var(--muted)">No subjects added yet. Check back soon!</p>`;
+          return;
+        }
+
+        subjects.forEach((subject, index) => {
+          const num = String(index + 1).padStart(2, "0");
+          const encodedSubject = encodeURIComponent(subject.name);
+          const encodedExam = encodeURIComponent(exam);
+
+          if (subject.comingSoon) {
+            grid.innerHTML += `
+              <div class="subject-card" style="opacity:0.5;cursor:not-allowed;">
+                <span>${num}</span>
+                <strong>${subject.name}</strong>
+                <i style="color:var(--muted)">Coming Soon</i>
+              </div>`;
+          } else {
+            grid.innerHTML += `
+              <a class="subject-card" href="time.html?year=1st%20Year&exam=${encodedExam}&subject=${encodedSubject}" target="_blank" rel="noopener">
+                <span>${num}</span>
+                <strong>${subject.name}</strong>
+                <i>Start prep →</i>
+              </a>`;
+          }
+        });
+
+      } catch (err) {
+        console.error(err);
+        grid.innerHTML = `<p style="color:var(--muted)">Error loading subjects. Please try again.</p>`;
+      }
+    };
+
+    loadSubjects();
+  </script>
 </body>
 </html>
