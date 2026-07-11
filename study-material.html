@@ -16,25 +16,77 @@
       <span>Advertisement</span>
       <p>Your study break could be here</p>
     </aside>
-
     <header class="topbar">
       <a class="back-link" id="material-back-link" href="time.html" aria-label="Back to time selection">
         <span aria-hidden="true">←</span> Back to time left
       </a>
       <a class="mini-logo" href="index.html">OneNight<span>.Prep</span></a>
     </header>
-
     <main class="content-main">
       <section class="page-heading">
         <p class="eyebrow">Step 06 · Study material</p>
         <h1 id="selected-subject">Your subject</h1>
         <p id="material-description"><span id="selected-year">Your year</span> · <span id="selected-exam">Your exam</span> · <span id="selected-time">Your time left</span></p>
       </section>
-
       <section class="probability-meter" id="probability-legend" aria-label="Probability meter" hidden></section>
-
       <section class="subject-grid exam-grid" id="material-grid" aria-label="Study material"></section>
     </main>
   </div>
+
+  <script type="module">
+    import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    import { db } from "./js/firebase.js";
+
+    const params = new URLSearchParams(window.location.search);
+    const year = params.get("year") || "";
+    const exam = params.get("exam") || "";
+    const subject = params.get("subject") || "";
+    const time = params.get("time") || "";
+
+    const normalizeIdPart = (value) => value.trim().replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "").toLowerCase();
+    const getContentDocId = () => [year, exam, subject, time].map(normalizeIdPart).join("_");
+
+    const grid = document.getElementById("material-grid");
+
+    const loadContent = async () => {
+      try {
+        const snapshot = await getDoc(doc(db, "content", getContentDocId()));
+        grid.innerHTML = "";
+
+        if (!snapshot.exists()) {
+          grid.innerHTML = `<p style="color:var(--muted)">No content added yet. Check back soon!</p>`;
+          return;
+        }
+
+        const data = snapshot.data();
+
+        if (data.pdfLink) {
+          grid.innerHTML += `
+            <div class="material-section" style="width:100%">
+              <h3 style="color:var(--text);margin-bottom:12px;">Study Material</h3>
+              <iframe src="${data.pdfLink}" width="100%" height="600px" style="border:none;border-radius:12px;"></iframe>
+            </div>`;
+        }
+
+        if (data.youtubeEmbedLink) {
+          grid.innerHTML += `
+            <div class="material-section" style="width:100%;margin-top:24px;">
+              <h3 style="color:var(--text);margin-bottom:12px;">Video Lecture</h3>
+              <iframe src="${data.youtubeEmbedLink}" width="100%" height="400px" style="border:none;border-radius:12px;" allowfullscreen></iframe>
+            </div>`;
+        }
+
+        if (!data.pdfLink && !data.youtubeEmbedLink) {
+          grid.innerHTML = `<p style="color:var(--muted)">Content coming soon!</p>`;
+        }
+
+      } catch (err) {
+        console.error(err);
+        grid.innerHTML = `<p style="color:var(--muted)">Error loading content. Please try again.</p>`;
+      }
+    };
+
+    loadContent();
+  </script>
 </body>
 </html>
