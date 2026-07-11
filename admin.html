@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,6 +10,7 @@
   <script src="js/cursor-light.js" defer></script>
   <script type="module" src="js/auth.js"></script>
 </head>
+
 <body>
   <div class="site-shell">
     <aside id="ad-banner" aria-label="Advertisement">
@@ -54,25 +56,25 @@
               </select>
             </div>
             <div class="admin-field">
-  <label for="content-exam">Exam Type</label>
-  <select id="content-exam" required>
-    <option>ST</option>
-    <option>PUT</option>
-    <option>End Semester</option>
-  </select>
-</div>
+              <label for="content-exam">Exam Type</label>
+              <select id="content-exam" required>
+                <option>ST</option>
+                <option>PUT</option>
+                <option>End Semester</option>
+              </select>
+            </div>
 
-<div class="admin-field">
-  <label for="content-time">Time Left</label>
-  <select id="content-time" required>
-    <option value="2+ Days Left">2+ Days Left</option>
-    <option value="1 Day Left">1 Day Left</option>
-    <option value="Just Tonight">Just Tonight</option>
-  </select>
-</div>
+            <div class="admin-field">
+              <label for="content-time">Time Left</label>
+              <select id="content-time" required>
+                <option value="2+ Days Left">2+ Days Left</option>
+                <option value="1 Day Left">1 Day Left</option>
+                <option value="Just Tonight">Just Tonight</option>
+              </select>
+            </div>
 
-<div class="admin-field">
-  <label for="content-subject">Subject</label>
+            <div class="admin-field">
+              <label for="content-subject">Subject</label>
               <select id="content-subject" required>
                 <option value="">Select subject</option>
               </select>
@@ -215,22 +217,24 @@
     const getSubjectDocId = (branch, name) => [branch, name].map(normalizeIdPart).join("_");
 
     const getContentDocId = () => {
-      const year = document.querySelector("#content-year").value;
-      const exam = document.querySelector("#content-exam").value;
-      const subject = document.querySelector("#content-subject").value;
-      return [year, exam, subject].map(normalizeIdPart).join("_");
-    };
+  const year = document.querySelector("#content-year").value;
+  const exam = document.querySelector("#content-exam").value;
+  const subject = document.querySelector("#content-subject").value;
+  const time = document.querySelector("#content-time").value;
+  return [year, exam, subject, time].map(normalizeIdPart).join("_");
+     };
 
     const getContentBase = () => {
-      const year = document.querySelector("#content-year").value;
-      return {
-        year,
-        branch: getBranchForYear(year),
-        examType: document.querySelector("#content-exam").value,
-        subject: document.querySelector("#content-subject").value,
-        updatedAt: serverTimestamp(),
-      };
-    };
+  const year = document.querySelector("#content-year").value;
+  return {
+    year,
+    branch: getBranchForYear(year),
+    examType: document.querySelector("#content-exam").value,
+    timePeriod: document.querySelector("#content-time").value,
+    subject: document.querySelector("#content-subject").value,
+    updatedAt: serverTimestamp(),
+  };
+};
 
     const requireSubject = () => {
       const subject = document.querySelector("#content-subject").value;
@@ -258,8 +262,12 @@
         const label = document.createElement("label");
         label.style.display = "flex";
         label.style.alignItems = "center";
+        label.style.justifyContent = "space-between";
         label.style.gap = "8px";
         label.style.margin = "8px 0";
+        label.style.padding = "8px 12px";
+        label.style.border = "1px solid var(--border)";
+        label.style.borderRadius = "8px";
         label.style.color = "var(--muted)";
 
         const checkbox = document.createElement("input");
@@ -368,17 +376,17 @@
     });
 
     document.querySelector("#remove-subject").addEventListener("click", async () => {
-  const selectedOption = subjectDropdown.options[subjectDropdown.selectedIndex];
-  const subjectId = selectedOption?.dataset?.id;
-  if (!subjectId) {
-    subjectStatus.textContent = "Select a subject to remove.";
-    return;
-  }
+      const selectedOption = subjectDropdown.options[subjectDropdown.selectedIndex];
+      const subjectId = selectedOption?.dataset?.id;
+      if (!subjectId) {
+        subjectStatus.textContent = "Select a subject to remove.";
+        return;
+      }
 
-  await deleteDoc(doc(db, "subjects", subjectId));
-  subjectStatus.textContent = "Subject removed.";
-  await loadSubjects();
-   });
+      await deleteDoc(doc(db, "subjects", subjectId));
+      subjectStatus.textContent = "Subject removed.";
+      await loadSubjects();
+    });
 
     document.querySelector("#subject-branch").addEventListener("change", loadSubjects);
     document.querySelector("#content-year").addEventListener("change", loadSubjects);
@@ -416,4 +424,5 @@
     protectAdminPage();
   </script>
 </body>
+
 </html>
