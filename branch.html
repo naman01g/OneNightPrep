@@ -28,20 +28,74 @@
       <section class="page-heading">
         <p class="eyebrow">Step 04 · Choose a subject</p>
         <h1 id="selected-branch">Your Branch</h1>
-        <p><span id="selected-exam">Your exam</span> · Subject names are coming soon. Pick a placeholder to continue.</p>
+        <p><span id="selected-exam">Your exam</span> · Choose a subject to continue.</p>
       </section>
 
-      <section class="subject-grid" aria-label="Branch subjects">
-        <a class="subject-card" href="time.html?year=2nd%20Year&amp;subject=Subject%201" data-subject="Subject 1" target="_blank" rel="noopener"><span>01</span><strong>Subject 1</strong><i>Start prep →</i></a>
-        <a class="subject-card" href="time.html?year=2nd%20Year&amp;subject=Subject%202" data-subject="Subject 2" target="_blank" rel="noopener"><span>02</span><strong>Subject 2</strong><i>Start prep →</i></a>
-        <a class="subject-card" href="time.html?year=2nd%20Year&amp;subject=Subject%203" data-subject="Subject 3" target="_blank" rel="noopener"><span>03</span><strong>Subject 3</strong><i>Start prep →</i></a>
-        <a class="subject-card" href="time.html?year=2nd%20Year&amp;subject=Subject%204" data-subject="Subject 4" target="_blank" rel="noopener"><span>04</span><strong>Subject 4</strong><i>Start prep →</i></a>
-        <a class="subject-card" href="time.html?year=2nd%20Year&amp;subject=Subject%205" data-subject="Subject 5" target="_blank" rel="noopener"><span>05</span><strong>Subject 5</strong><i>Start prep →</i></a>
-        <a class="subject-card" href="time.html?year=2nd%20Year&amp;subject=Subject%206" data-subject="Subject 6" target="_blank" rel="noopener"><span>06</span><strong>Subject 6</strong><i>Start prep →</i></a>
-        <a class="subject-card" href="time.html?year=2nd%20Year&amp;subject=Subject%207" data-subject="Subject 7" target="_blank" rel="noopener"><span>07</span><strong>Subject 7</strong><i>Start prep →</i></a>
-        <a class="subject-card" href="time.html?year=2nd%20Year&amp;subject=Subject%208" data-subject="Subject 8" target="_blank" rel="noopener"><span>08</span><strong>Subject 8</strong><i>Start prep →</i></a>
+      <section class="subject-grid" id="subject-grid" aria-label="Branch subjects">
+        <p style="color:var(--muted)">Loading subjects...</p>
       </section>
     </main>
   </div>
+  <script type="module">
+    import { collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    import { db } from "./js/firebase.js";
+
+    const params = new URLSearchParams(window.location.search);
+    const year = params.get("year") || "2nd Year";
+    const exam = params.get("exam") || "";
+    const branch = params.get("branch") || "";
+    const grid = document.getElementById("subject-grid");
+
+    const buildUrl = (page, values = {}) => {
+      const urlParams = new URLSearchParams();
+      Object.entries(values).forEach(([key, value]) => {
+        if (value !== null && value !== undefined) {
+          urlParams.set(key, value);
+        }
+      });
+      return `${page}?${urlParams.toString()}`;
+    };
+
+    const loadSubjects = async () => {
+      try {
+        const subjectQuery = query(collection(db, "subjects"), where("branch", "==", branch));
+        const snapshot = await getDocs(subjectQuery);
+        const subjects = snapshot.docs.map((subjectDoc) => ({ id: subjectDoc.id, ...subjectDoc.data() }));
+
+        grid.innerHTML = "";
+
+        if (subjects.length === 0) {
+          grid.innerHTML = `<p style="color:var(--muted)">No subjects added yet. Check back soon!</p>`;
+          return;
+        }
+
+        subjects.forEach((subject, index) => {
+          const num = String(index + 1).padStart(2, "0");
+          const subjectHref = buildUrl("time.html", { year, exam, branch, subject: subject.name });
+
+          if (subject.comingSoon) {
+            grid.innerHTML += `
+              <div class="subject-card" style="opacity:0.5;cursor:not-allowed;">
+                <span>${num}</span>
+                <strong>${subject.name}</strong>
+                <i style="color:var(--muted)">Coming Soon</i>
+              </div>`;
+          } else {
+            grid.innerHTML += `
+              <a class="subject-card" href="${subjectHref}" data-subject="${subject.name}" target="_blank" rel="noopener">
+                <span>${num}</span>
+                <strong>${subject.name}</strong>
+                <i>Start prep →</i>
+              </a>`;
+          }
+        });
+      } catch (err) {
+        console.error(err);
+        grid.innerHTML = `<p style="color:var(--muted)">Error loading subjects. Please try again.</p>`;
+      }
+    };
+
+    loadSubjects();
+  </script>
 </body>
 </html>

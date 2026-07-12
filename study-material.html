@@ -62,7 +62,7 @@
       return rawBranch;
     };
 
-    const getContentDocId = () => [year, getBranch(), exam, subject, time].map(normalizeIdPart).join("_");
+    const getContentDocId = () => [year, exam, subject, time].map(normalizeIdPart).join("_");
 
     const createCard = (item, clickHandler) => {
       const card = document.createElement("button");
